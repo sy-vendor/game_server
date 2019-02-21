@@ -107,22 +107,17 @@ send_msg(Socket) ->
             gen_tcp:close(Socket),
             ok;
         {send, close} ->
-%%            gen_tcp:close(Socket),
+            gen_tcp:close(Socket),
             ok;
         {inet_reply, _E, ok} ->
             send_msg(Socket);
         {send, Bin} ->
-            try erlang:port_command(Socket, Bin, [force]) of
+            case erlang:port_command(Socket, Bin, [force]) of
                 true ->
                     send_msg(Socket);
                 Ex ->
                     ?ERROR_MSG("port_command one ex:~w ~n", [Ex]),
                     send_msg(Socket)
-            catch
-                error:_ERROR ->
-                    ?ERROR_MSG("port_command four error:~w ~n", [_ERROR]),
-                    gen_tcp:close(Socket),
-                    ok
             end;
         {inet_reply, _, {error, closed}} ->
             gen_tcp:close(Socket),
