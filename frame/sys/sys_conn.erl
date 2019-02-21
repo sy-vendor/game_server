@@ -272,11 +272,13 @@ handle_info({inet_reply, _Socket, {error, timeout}}, State = #conn{error_send = 
 handle_info({inet_reply, _Socket, _Else}, State = #conn{account = _Account}) ->
     ?ERROR_MSG("[~s] send socket data err: ~w", [_Account, _Else]),
     {stop, normal, State};
-%%handle_info({'EXIT', _Pid, normal}, State = #conn{account = _Account}) ->
-%%    {stop, normal, State};
 %% 处理关联进程异常退出
 handle_info({'EXIT', Pid, _Why}, State = #conn{account = _Account, pid_object = ObjectPid}) when Pid =:= ObjectPid ->
     ?ERROR_MSG("account:~w, process pid:~w[Pid] abnormal exit _why:~w", [_Account, Pid, _Why]),
+    {stop, normal, State};
+handle_info({'EXIT', _Pid, _Why}, State) ->
+    {stop, {shutdown, reconnect}, State};
+handle_info(stop, State) ->
     {stop, normal, State};
 handle_info(_Info, State) ->
     {noreply, State}.
@@ -294,6 +296,8 @@ handle_info(_Info, State) ->
 %%--------------------------------------------------------------------
 -spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
     State :: #state{}) -> term()).
+terminate({shutdown, reconnect}, _State) ->
+    ok;
 terminate(_Reason, #conn{account = _Account, socket = Socket, object = Object, pid_object = ObjectPid}) ->
     catch Object:stop_after(ObjectPid),
     gen_tcp:close(Socket),
