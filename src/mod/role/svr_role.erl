@@ -287,7 +287,8 @@ handle_cast(stop_after, State) ->
             svr_role:stop(RolePid),
             {noreply, State};
         StateN ->
-            erlang:send_after(?INTERVAL_STOP_SPAN, self(), stop),
+%%            erlang:send_after(?INTERVAL_STOP_SPAN, self(), stop),
+            svr_role:stop(RolePid),
             {noreply, StateN}
     end;
 %% 停止游戏进程
@@ -304,8 +305,8 @@ handle_cast({reconnect, [Ip, Socket, RoleSidN, ConnPid]}, State) ->
     % 重置客户端连接数据
     StateN0 = State#role{sid = RoleSidN, ip = Ip, socket = Socket},
     NowTime = util_time:unixtime(),
-    StateN = lib_event:role_login(false, NowTime, StateN0),
     put(conn_pid, ConnPid),
+    StateN = lib_event:role_login(false, NowTime, StateN0),
     {noreply, StateN};
 handle_cast(_Request, State) ->
     {noreply, State}.
@@ -333,11 +334,8 @@ handle_info({second_timer}, State) ->
         role_id = _RoleId, sid = _RoleSid,
         tick_time = #tick_time{three_minute = ThreeMinute} = TickTime
     } = State,
-%%    NowTimeMs = util_time:unixtime(ms),
-%%    NowTime = NowTimeMs div 1000,
     % 每秒必做逻辑
     StateN1 = lib_merge_api:check_role_asset(State),
-%%    lib_speed_api:loop_speed_up(RoleId),
     % 检查订单系统
     lib_order_api:loop_order(StateN1),
     % 三分钟必做逻辑
@@ -385,7 +383,16 @@ handle_info(_Info, State) ->
 %%--------------------------------------------------------------------
 -spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
     State :: #state{}) -> term()).
-terminate(_Reason, _State) ->
+terminate(normal, _State) ->
+    ok;
+terminate(_Reason, State) ->
+    ?ERROR_MSG("role logout terminate reason: ~p", [_Reason]),
+    case catch lib_role_api:logout(State) of
+        {'EXIT', R} ->
+            ?ERROR_MSG("role logout terminate stop:~p~n", [R]);
+        _ ->
+            ignore
+    end,
     ok.
 
 %%--------------------------------------------------------------------
