@@ -21,9 +21,9 @@
 -define(INTERVAL_STOP_SPAN, 5000).
 
 %% 微信相关
--define(APP_ID, "wx5ea26fbf09e8cf7c").
--define(APP_SECRET, "3f7e12e2ed6a12ef2e857b75565926e5").
--define(GRANT_TYPE, "authorization_code").
+-define(APP_ID, "").
+-define(APP_SECRET, "").
+-define(GRANT_TYPE, "").
 
 %% 公共定义0|1
 -define(SUCCESS, 0).
