@@ -1,0 +1,485 @@
+syntax = "proto3";
+package logic;
+
+// 逻辑协议
+
+enum MSG {
+    NONE = 0;
+    // 系统相关:10000
+	HEART_REQ = 10001;                  // 心跳请求
+	HEART_RES = 10002;                  // 心跳返回
+	LOGIN_REQ = 10003;                  // 登陆请求
+    LOGIN_RES = 10004;                  // 登陆返回
+    // 玩家相关:11000
+    ROLE_INFO_REQ = 11001;              // 玩家信息请求
+    ROLE_INFO_RES = 11002;              // 玩家信息返回
+    ROLE_ASSET_CHANGE_NOTIFY = 11003;   // 玩家资产变化返回(主动推送)
+    BOX_REWARD_REQ = 11004;             // 宝箱奖励领取请求
+    BOX_REWARD_RES = 11005;             // 宝箱奖励领取返回
+    OFFLINE_REWARD_REQ = 11006;         // 离线奖励请求
+    OFFLINE_REWARD_RES = 11007;         // 离线奖励返回
+    OFFLINE_INFO_REQ = 11008;           // 离线奖励信息请求
+    OFFLINE_INFO_RES = 11009;           // 离线奖励信息返回
+    // 合并相关:11000
+    PRODUCE_NEW_REQ = 11101;            // 生成请求
+    PRODUCE_NEW_RES = 11102;            // 生成返回
+    MERGE_EXCHANGE_REQ = 11103;         // 合并(交换)请求
+    MERGE_EXCHANGE_RES = 11104;         // 合并(交换)返回
+    RECOVERY_OBJECT_REQ = 11105;        // 回收请求
+    RECOVERY_OBJECT_RES = 11106;        // 回收返回
+    OBJECT_PRODUCE_ASSET_NOTIFY = 11107;// 资产产出返回(主动推送)
+    POS_INFO_REQ = 11108;               // 格子信息请求
+    POS_INFO_RES = 11109;               // 格子信息返回
+    BUY_OBJECT_REQ = 11110;             // 购买请求
+    BUY_OBJECT_RES = 11111;             // 购买返回
+    SHOP_INFO_REQ = 11112;              // 商店信息请求
+    SHOP_INFO_RES = 11113;              // 商店信息返回
+    // 签到相关:11100
+    SIGN_INFO_REQ = 11201;              // 签到信息请求
+    SIGN_INFO_RES = 11202;              // 签到信息返回
+    SIGN_REWARD_REQ = 11203;            // 签到奖励领取请求
+    SIGN_REWARD_RES = 11204;            // 签到奖励领取返回
+    // 转盘相关:11300
+    TURNTABLE_INFO_REQ = 11301;         // 转盘信息请求
+    TURNTABLE_INFO_RES = 11302;         // 转盘信息返回
+    PLAY_TURNTABLE_REQ = 11303;         // 转盘请求
+    PLAY_TURNTABLE_RES = 11304;         // 转盘返回
+    AD_REWARD_REQ = 11305;              // 观看广告奖励领取请求
+    AD_REWARD_RES = 11306;              // 观看广告奖励领取返回
+    // 邀请相关:11400
+    INVITE_INFO_REQ = 11401;            // 邀请信息请求
+    INVITE_INFO_RES = 11402;            // 邀请信息返回
+    INVITE_REWARD_REQ = 11403;          // 邀请奖励领取请求
+    INVITE_REWARD_RES = 11404;          // 邀请奖励领取返回
+    // 订单相关:11500
+    ORDER_INFO_REQ = 11501;             // 订单信息请求
+    ORDER_INFO_RES = 11502;             // 订单信息返回(会主动推送)
+    ORDER_ACCEPT_REQ = 11503;           // 接单请求
+    ORDER_DELIVERY_REQ = 11504;         // 配送请求
+    ORDER_REWQRD_REQ = 11505;           // 领奖请求
+    OPDER_COMMON_RES = 11506;           // 订单通用返回
+    // 服务员相关:11600
+    WAITER_INFO_REQ = 11601;            // 服务员信息请求
+    WAITER_INFO_RES = 11602;            // 服务员信息返回
+    WAITER_UNLOCK_REQ = 11603;          // 服务员解锁请求
+    WAITER_UNLOCK_RES = 11604;          // 服务员解锁返回
+    WAITER_INTIMATE_REQ = 11605;        // 服务员打赏请求
+    WAITER_INTIMATE_RES = 11606;        // 服务员打赏返回
+    // 加速相关:11700
+    // SPEED_UP_STATE_REQ = 11701;         // 加速状态请求
+    // SPEED_UP_STATE_RES = 11702;         // 加速状态返回(会主动推送)
+    SPEED_UP_REQ = 11703;               // 加速请求
+    SPEED_UP_RES = 11704;               // 加速返回
+    // 微信相关:11800
+    WECHAT_LOGIN_REQ = 11801;           // 微信登陆请求
+    WECHAT_LOGIN_RES = 11802;           // 微信登陆返回
+
+}
+
+enum ERROR_CODE {
+    OK = 0;
+    ERR_COMMON_SYS = 10000; // 系统错误
+    ERR_COMMON_COST_LIMIT = 10001; // 消耗不足
+    ERR_COMMON_MAP_LIMIT = 10002; // 地图已填满
+    ERR_COMMON_BUY_LIMIT = 10003; // 购买限制
+    ERR_COMMON_ALREADY_SIGN = 10004; // 已经签到
+    ERR_COMMON_REWARD_LIMIT = 10005; // 奖励领取条件限制
+    ERR_COMMON_REWARD_ALREADY = 10006; // 奖励已经领取
+    ERR_COMMON_CNT_LIMIT = 10007; // 次数不足
+    ERR_COMMON_FUNC_UNOPEND = 10008; // 功能未开启
+    ERR_COMMON_ORDER_OUTTIME = 10009; // 订单不存在或已超时
+    ERR_COMMON_ORDER_NOACCEPT = 10010; // 订单未接收
+    ERR_COMMON_INSUFFICIENT_MATERIAL = 10011; // 食材不足
+    ERR_COMMON_ORDER_NOCOMMPLET = 10012; // 订单未完成
+    ERR_COMMON_WAITER_NOEXIST = 10013; // 服务员不存在
+    ERR_COMMON_WAITER_UNLOCK = 10014; // 上一类服务员未解锁
+    ERR_COMMON_ORDER_COMMPLET = 10015; // 订单已完成
+    ERR_COMMON_BUY_ERR = 10016; // 不能购买该菜肴
+    ERR_COMMON_ORDER_ACCEPT = 10017; // 该订单已经接受
+    ERR_COMMON_DIAMOND_LIMIT = 10018; // 钻石不足
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// HEART_REQ = 10001
+message HeartReq {
+}
+
+// HEART_RES = 10002
+message HeartRes {
+}
+
+// LOGIN_REQ = 10003
+message LoginReq {
+	 string tokenId = 1;		// 玩家Token_id
+	 string name = 2;			// 玩家姓名
+	 string headUrl = 3;		// 玩家头像
+	 uint32 gender = 4; 		// 0未知 1男 2女
+	 string inviteTokenId = 5;  // 邀请者tokenid,即入口分享人
+}
+
+// LOGIN_RES = 10004
+message LoginRes {
+    ERROR_CODE code = 1;		// 错误码
+    string tokenId = 2;			// 玩家TokenId
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// 公共数据项
+// public message
+message RoleInfo {
+    string tokenId = 1; 	    // tokenId
+    string headUrl = 2;		    // 玩家头像
+    string name = 3;		    // 玩家名
+	uint32 lv = 4;			    // 等级
+    uint32 diamond = 5;		    // 玩家钻石
+    uint64 coin = 6;		    // 玩家金币
+    uint32 reputation = 7;	    // 口碑值
+    uint32 gender = 8; 		    // 0未知 1男 2女
+    uint32 loginDay = 9; 	    // 登陆天数
+    uint32 lastLogoutTime = 10; // 上次退出时间
+}
+
+//ROLE_INFO_REQ = 11001
+message RoleInfoReq {
+}
+
+//ROLE_INFO_RES = 11002
+message RoleInfoRes {
+    ERROR_CODE code = 1;		// 错误码
+    RoleInfo roleInfo = 2;      // 玩家信息
+}
+
+//ROLE_ASSET_CHANGE_NOTIFY = 11003
+message RoleAssetChangeNotify {
+    uint32 diamond = 1;		// 玩家钻石
+    uint64 coin = 2;		// 玩家金币
+    uint32 reputation = 3;	// 口碑值
+}
+
+//BOX_REWARD_REQ = 11004
+message BoxRewardReq {
+}
+
+//BOX_REWARD_RES = 11005
+message BoxRewardRes {
+	ERROR_CODE code = 1;		// 错误码
+}
+
+//OFFLINE_REWARD_REQ = 11006
+message OfflineRewardReq {
+    uint32 type = 1;		// 领取类型 1:普通 2:双倍
+}
+
+//OFFLINE_REWARD_RES = 11007
+message OfflineRewardRes {
+    ERROR_CODE code = 1;		// 错误码
+}
+
+//OFFLINE_INFO_REQ = 11008
+message OfflineInfoReq {
+}
+
+//OFFLINE_INFO_RES = 11009
+message OfflineInfoRes {
+    ERROR_CODE code = 1;		// 错误码
+    uint64 coin = 2;		// 离线奖励金币
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// 公共数据项
+// public message
+message PosInfo {
+    uint32 pos = 1; 		// PosId
+    uint32 type = 2;		// 类型
+}
+
+message ShopInfo {
+    uint32 id = 1; 		    // 物品Id
+    uint32 type = 2;		// 消耗类型 1:金币 2:钻石
+    uint64 price = 3;		// 价格
+}
+
+//PRODUCE_NEW_REQ = 11101
+message ProduceNewReq {
+}
+
+//PRODUCE_NEW_RES = 11102
+message ProduceNewRes {
+    ERROR_CODE code = 1;		// 错误码
+	PosInfo posInfo = 2;        // 格子信息
+	uint32 nextType = 3;        //下一次生成类型
+    uint32 nextPrice = 4;       //下一次价格
+}
+
+//MERGE_EXCHANGE_REQ = 11103
+message MergeExchangeReq {
+	uint32 posOne = 1;	// 开始位置
+	uint32 posTwo = 2;	// 结束位置
+}
+
+//MERGE_EXCHANGE_RES = 11104
+message MergeExchangeRes {
+	ERROR_CODE code = 1;		// 错误码
+    repeated PosInfo posInfo = 2;   // 格子信息
+    uint32 nextType = 3;        //下一次生成类型
+    uint32 nextPrice = 4;       //下一次价格
+}
+
+//RECOVERY_OBJECT_REQ = 11105
+message RecoveryObjectReq {
+	uint32 pos = 1;		// 位置
+}
+
+//RECOVERY_OBJECT_RES = 11106
+message RecoveryObjectRes {
+	ERROR_CODE code = 1;		// 错误码
+	repeated PosInfo posInfo = 2; // 格子信息
+}
+
+//OBJECT_PRODUCE_ASSET_NOTIFY = 11107
+message ObjectProduceAssetNotify {
+	uint32 pos = 1;		// 位置
+	uint32 asset = 2;	// 奖励
+}
+
+//POS_INFO_REQ = 11108
+message PosInfoReq {
+}
+
+//POS_INFO_RES = 11109
+message PosInfoRes {
+    ERROR_CODE code = 1;		// 错误码
+	repeated PosInfo posInfo = 2; // 格子信息
+	uint32 nextType = 3;    // 下一个产出类型
+    uint32 nextPrice = 4;   // 财富值
+}
+
+//BUY_OBJECT_REQ = 11110
+message BuyObjectReq {
+	uint32 type = 1;    // 购买Id
+}
+
+//BUY_OBJECT_RES = 11111
+message BuyObjectRes {
+	ERROR_CODE code = 1;		// 错误码
+	PosInfo posInfo = 2;   // 格子信息
+}
+
+//SHOP_INFO_REQ = 11112
+message ShopInfoReq {
+}
+
+//SHOP_INFO_RES = 11113
+message ShopInfoRes {
+    ERROR_CODE code = 1;		// 错误码
+	repeated ShopInfo shopInfo = 2; // 商店信息
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//SIGN_INFO_REQ = 11201
+message SignInfoReq {
+}
+
+//SIGN_INFO_RES = 11202
+message SignInfoRes {
+	ERROR_CODE code = 1;		// 错误码
+	bool isSign = 2;		// 今日是否签到
+	uint32 totalSignCnt = 3;	// 总签到数
+}
+
+//SIGN_REWARD_REQ = 11203
+message SignRewardReq {
+	uint32 type = 1;	// 签到类型	0:普通 1:双倍
+}
+
+//SIGN_REWARD_RES = 11204
+message SignRewardRes {
+	ERROR_CODE code = 1;		// 错误码
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//TURNTABLE_INFO_REQ = 11301
+message TurntableInfoReq {
+}
+
+//TURNTABLE_INFO_RES = 11302
+message TurntableInfoRes {
+    ERROR_CODE code = 1;		// 错误码
+	uint32 turntableCnt = 2;	// 今日剩余次数
+}
+
+//PLAY_TURNTABLE_REQ = 11303
+message PlayTurntableReq {
+}
+
+//PLAY_TURNTABLE_RES = 11304
+message PlayTurntableRes {
+	ERROR_CODE code = 1;		// 错误码
+	uint32 pos = 2;				// 位置
+	uint32 turntableCnt = 3;	// 今日剩余次数
+}
+
+//AD_REWARD_REQ = 11305
+message AdRewardReq {
+}
+
+//AD_REWARD_RES = 11306
+message AdRewardRes {
+	ERROR_CODE code = 1;		// 错误码
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// 公共数据项
+// public message
+message InviteInfo {
+	string tokenId = 1; 	// tokenId
+	string headUrl = 2;
+	uint32 sort = 3;		// 排序
+	bool isReward = 4;	// 奖励是否领取(0:未领取 1:已领取)
+}
+
+//INVITE_INFO_REQ = 11401
+message InviteInfoReq {
+}
+
+//INVITE_INFO_RES = 11402
+message InviteInfoRes {
+	ERROR_CODE code = 1;		// 错误码
+	repeated InviteInfo infos = 2; 	//	邀请列表信息
+}
+
+//INVITE_REWARD_REQ = 11403
+message InviteRewardReq{
+	uint32 id = 1;			// 唯一Id
+}
+
+//INVITE_REWARD_RES = 11404
+message InviteRewardRes {
+    ERROR_CODE code = 1;		// 错误码
+    uint32 id = 2; // 唯一id
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// 公共数据项
+// public message
+message OrderInfo {
+	uint64 orderId = 1;		// 订单唯一Id
+	uint32 mapId = 2;	    // 订单映射Id
+	uint32 orderState = 3;  // 订单状态
+	uint32 orderTime = 4;   // 到期时间
+}
+
+//ORDER_INFO_REQ = 11501
+message OrderInfoReq {
+}
+
+//ORDER_INFO_RES = 11502
+message OrderInfoRes {
+	ERROR_CODE code = 1;		// 错误码
+	repeated OrderInfo orderInfo = 2; 	//	订单列表信息
+}
+
+//ORDER_ACCEPT_REQ = 11503
+message OrderAcceptReq {
+    uint64 orderId = 1;		// 订单唯一Id
+}
+
+//ORDER_DELIVERY_REQ = 11504
+message OrderDeliveryReq {
+    uint64 orderId = 1;		// 订单唯一Id
+}
+
+//ORDER_REWARD_REQ = 11505
+message OrderRewardReq {
+    uint64 orderId = 1;		// 订单唯一Id
+}
+
+//OPDER_COMMON_RES = 11506
+message OrderCommonRes {
+    ERROR_CODE code = 1;		// 错误码
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// 公共数据项
+// public message
+message WaiterInfo {
+	uint32 id = 1;		    // 服务员唯一Id
+	uint32 type = 2;        // 服务员种类
+	uint32 intimate = 3;    // 亲密值
+	uint32 skillLv = 4;     // 技能等级
+}
+
+//WAITER_INFO_REQ = 11601
+message WaiterInfoReq {
+}
+
+//WAITER_INFO_RES = 11602
+message WaiterInfoRes {
+	ERROR_CODE code = 1;		// 错误码
+	repeated WaiterInfo waiterInfo = 2; 	//	服务员列表信息
+}
+
+//WAITER_UNLOCK_REQ = 11603
+message WaiterUnlockReq {
+	uint32 type = 1; 	    //	服务员类型
+}
+
+//WAITER_UNLOCK_RES = 11604
+message WaiterUnlockRes {
+	ERROR_CODE code = 1;		// 错误码
+}
+
+
+//WAITER_INTIMATE_REQ = 11605
+message WaiterIntimateReq {
+	uint32 id = 1; 	    //	服务员唯一Id
+}
+
+//WAITER_INTIMATE_RES = 11606
+message WaiterIntimateRes {
+	ERROR_CODE code = 1;		// 错误码
+	WaiterInfo waiterInfo = 2; 	    //	服务员信息
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// //SPEED_UP_STATE_REQ = 11701
+// message SpeedUpStateReq {
+// }
+
+// //SPEED_UP_STATE_RES = 11702
+// message SpeedUpStateRes {
+//     ERROR_CODE code = 1;		// 错误码
+//     uint32 end_time = 2; 	//	加速结束时间(0:未加速 1:加速)
+// }
+
+//SPEED_UP_REQ = 11703
+message SpeedUpReq {
+    uint32 type = 1; // 1使用钻石 2看广告
+}
+
+//SPEED_UP_RES = 11704
+message SpeedUpRes {
+    ERROR_CODE code = 1;		// 错误码 ERR_COMMON_DIAMOND_LIMIT ERR_COMMON_CNT_LIMIT
+    uint64 coin = 2; 	//	此次加速奖励金币
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//WECHAT_LOGIN_REQ = 11801;
+message WechatLoginReq {
+    string wxCode = 1;
+}
+
+// WECHAT_LOGIN_RES = 11802;
+message WechatLoginRes {
+    ERROR_CODE code = 1;    // 错误码
+    string openId = 2; //
+}
