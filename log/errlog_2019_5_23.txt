@@ -1,0 +1,150 @@
+#info 2019-5-23 12:1:49[sup_master:42] 
+[sup_master] 正在启动监控树...
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_time]
+
+#info 2019-5-23 12:1:49[boot_misc:64] 
+完成启动[svr_time]
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_filter]
+
+#info 2019-5-23 12:1:49[boot_misc:64] 
+完成启动[svr_filter]
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_logic]
+
+#info 2019-5-23 12:1:49[boot_misc:64] 
+完成启动[svr_logic]
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_node]
+
+#info 2019-5-23 12:1:49[boot_misc:64] 
+完成启动[svr_node]
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_global_data]
+
+#info 2019-5-23 12:1:49[boot_misc:64] 
+完成启动[svr_global_data]
+
+#info 2019-5-23 12:1:49[boot_misc:61] 
+正在启动[svr_ban]
+
+#info 2019-5-23 12:1:49[boot_misc:67] 
+启动出错[svr_ban]: {error,{function_clause,[{svr_ban,'-db_ban_get/1-lc$^0/1-0-',[{error,{error,{mysql_result,[],[],0,0,[84,97,98,108,101,32,39,103,97,109,101,46,98,97,110,95,105,110,102,111,39,32,100,111,101,115,110,39,116,32,101,120,105,115,116],1146,[52,50,83,48,50]}}}],[{file,[115,114,99,47,115,101,114,118,101,114,47,108,111,103,105,110,47,115,118,114,95,98,97,110,46,101,114,108]},{line,512}]},{svr_ban,init_state,0,[{file,[115,114,99,47,115,101,114,118,101,114,47,108,111,103,105,110,47,115,118,114,95,98,97,110,46,101,114,108]},{line,325}]},{svr_ban,init,1,[{file,[115,114,99,47,115,101,114,118,101,114,47,108,111,103,105,110,47,115,118,114,95,98,97,110,46,101,114,108]},{line,165}]},{gen_server,init_it,2,[{file,[103,101,110,95,115,101,114,118,101,114,46,101,114,108]},{line,365}]},{gen_server,init_it,6,[{file,[103,101,110,95,115,101,114,118,101,114,46,101,114,108]},{line,333}]},{proc_lib,init_p_do_apply,3,[{file,[112,114,111,99,95,108,105,98,46,101,114,108]},{line,247}]}]}}
+
+#info 2019-5-23 12:2:48[sup_master:42] 
+[sup_master] 正在启动监控树...
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_time]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_time]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_filter]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_filter]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_logic]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_logic]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_node]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_node]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_global_data]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_global_data]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_ban]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_ban]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[svr_acc_data]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[svr_acc_data]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[sup_logic_timer]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[sup_logic_timer]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[sup_activity]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[sup_activity]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[sup_acceptor]
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[sup_acceptor]
+
+#info 2019-5-23 12:2:48[boot_misc:61] 
+正在启动[sys_listener]
+
+#info 2019-5-23 12:2:48[sys_listener:94] 
+[sys_listener] 成功监听到端口:9001
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_acceptor:71] 
+[sys_acceptor] 已启动...
+
+#info 2019-5-23 12:2:48[sys_listener:96] 
+[sys_listener] 启动完成
+
+#info 2019-5-23 12:2:48[boot_misc:64] 
+完成启动[sys_listener]
+
