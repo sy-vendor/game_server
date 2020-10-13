@@ -1,4 +1,3 @@
-# self-learning
-Erlang game_server
+# A Erlang Game Server
 
-A game server framework in Erlang.
+    A simple game server framework in Erlang.
