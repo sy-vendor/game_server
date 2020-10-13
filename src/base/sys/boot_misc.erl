@@ -1,0 +1,76 @@
+%%%-------------------------------------------------------------------
+%%% @author sy
+%%% @copyright (C) 2019, <COMPANY>
+%%% @doc
+%%% ERL应用启动
+%%% @end
+%%% Created : 29. 9月 2019 15:58
+%%%-------------------------------------------------------------------
+-module(boot_misc).
+-author("Admin").
+
+%% API
+-export([start_applications/1, stop_applications/1, start_sup_child/3, swap_sup_child/1]).
+
+
+%% @spec start_applications(Apps) -> ok
+%% Apps = list()
+%% @doc 按次序启动app
+start_applications(Apps) ->
+  manage_applications(
+    fun lists:foldl/3,
+    fun application:start/1,
+    fun application:stop/1,
+    already_started,
+    cannot_start_application,
+    Apps
+  ).
+
+%% @spec stop_applications(Apps) -> ok
+%% Apps = list()
+%% @doc 按启动时相反的次序关闭app
+stop_applications(Apps) ->
+  manage_applications(
+    fun lists:foldr/3,
+    fun application:stop/1,
+    fun application:start/1,
+    not_started,
+    cannot_stop_application,
+    Apps
+  ).
+
+manage_applications(Iterate, Do, Undo, SkipError, ErrorTag, Apps) ->
+  io:format("Apps:~w", [Apps]),
+  F = fun(App, Acc) ->
+    case Do(App) of
+      ok -> [App | Acc];
+      {error, {SkipError, _}} -> Acc;
+      {error, Reason} ->
+        lists:foreach(Undo, Acc),
+        throw({error, {ErrorTag, App, Reason}})
+    end
+      end,
+  Iterate(F, [], Apps),
+  ok.
+
+%% @spec start_sup_child(M, F, A) -> {ok, Pid} | {error, Reason}
+%% {M, F, A} = mfa()
+%% Pid = pid()
+%% 启动supervisor的子进程
+start_sup_child(M, F, A) ->
+  io:format("start sup child M:~w, F:~w, A:~w~n", [M, F, A]),
+  case erlang:apply(M, F, A) of
+    {ok, Pid} when is_pid(Pid) ->
+      {ok, Pid};
+    Err ->
+      io:format("start sup child error Err:~w, M:~w~n", [Err, M]),
+      Err
+  end.
+
+%% 处理监控树列表
+swap_sup_child(L) ->
+  lists:map(fun({Id, {M, F, A}, StartType, StartCount, Type, Mod}) ->
+    io:format("Id:~w, M:~w, F:~w, A:~w~n", [Id, M, F, A]),
+    {Id, {boot_misc, start_sup_child, [M, F, A]}, StartType, StartCount, Type, Mod};
+    ({Id, {M, F, A}}) ->  {Id, {boot_misc, start_sup_child, [M, F, A]}, transient, 100000, worker, [Id]}
+            end, L).
