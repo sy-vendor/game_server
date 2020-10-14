@@ -15,7 +15,6 @@
 %% 数据库相关
 -define(DB, db).                 %% 数据库函数
 -define(POOL_GAME, db_game).     %% 游戏数据库
--define(POOL_LOG, db_log).       %% 日志数据库
 -define(INFO_DB_NUM, 50).        %% 保存频率
 
 %% 时间相关定义
