@@ -2,7 +2,7 @@
 %%% @author sy
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
-%%%
+%%% TCP监听处理
 %%% @end
 %%% Created : 29. 9月 2019 15:31
 %%%-------------------------------------------------------------------
@@ -11,8 +11,10 @@
 
 -behaviour(gen_server).
 
+-include("common.hrl").
+
 %% API
--export([start_link/0]).
+-export([start_link/0, start_link/1, stop/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
@@ -21,6 +23,20 @@
 -define(SERVER, ?MODULE).
 
 -record(sys_listener_state, {}).
+
+-define(TCP_OPTIONS, [
+  binary
+  ,{packet, 0}
+  ,{active, false}
+  ,{reuseaddr, true}
+  ,{nodelay, false}
+  ,{delay_send, true}
+  ,{exit_on_close, false}
+  ,{send_timeout, 10000}
+  ,{send_timeout_close, false}
+]).
+
+-define(TCP_ACCEPTOR_NUM, 12).
 
 %%%===================================================================
 %%% API
@@ -32,6 +48,26 @@
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
+%% @spec start_link(Port) -> {ok, Pid} | ignore | {error, Error}
+%% Port = integer()
+%% @doc 开启连接监听服务
+start_link(Port) ->
+  case gen_server:start_link({local, ?MODULE}, ?MODULE, [Port], []) of
+    {ok, P} -> {ok, P};
+    _Err ->
+      ?ERR("sys listener error:~w", [_Err]),
+      _Err
+  end.
+
+%% @spec stop() -> ok
+%% @doc 关闭连接监听服务
+stop() ->
+  ?INFO("[~w] Closing...", [?MODULE]),
+  supervisor:terminate_child(game, sup_acceptor),
+  supervisor:terminate_child(game, sys_listener),
+  ?INFO("[~w] it has been closed...", [?MODULE]),
+  ok.
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -41,8 +77,17 @@ start_link() ->
 -spec(init(Args :: term()) ->
   {ok, State :: #sys_listener_state{}} | {ok, State :: #sys_listener_state{}, timeout() | hibernate} |
   {stop, Reason :: term()} | ignore).
-init([]) ->
-  {ok, #sys_listener_state{}}.
+init([Port]) ->
+  case gen_tcp:listen(Port, ?TCP_OPTIONS) of
+    {ok, LSock} ->
+      ?INFO("[~w] Listening port success:~w", [?MODULE, Port]),
+      start_acceptor(?TCP_ACCEPTOR_NUM, LSock),
+      ?INFO("[~w] Startup complete", [?MODULE]),
+      {ok, state};
+    {error, Reason}->
+      ?ERR("[~w] Monitor failed~w:~w", [?MODULE, Port, Reason]),
+      {stop, listen_failure, state}
+  end.
 
 %% @private
 %% @doc Handling call messages
@@ -96,3 +141,8 @@ code_change(_OldVsn, State = #sys_listener_state{}, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+start_acceptor(0, _LSock)-> ok;
+start_acceptor(N, LSock)->
+  {ok, Pid} = supervisor:start_child(sup_acceptor, [LSock]),
+  Pid ! {event, start},
+  start_acceptor(N - 1, LSock).
