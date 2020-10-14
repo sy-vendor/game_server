@@ -11,14 +11,21 @@
 
 -behaviour(application).
 
+-include("common.hrl").
+
 %% Application callbacks
 -export([start/2,
   start/0,
-  stop/1]).
+  stop/1,
+  stop/0]).
+
+-define(APPS, [sasl, game]).
 
 %%%===================================================================
 %%% Application callbacks
 %%%===================================================================
+start() ->
+  boot_misc:start_applications(?APPS).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -37,9 +44,7 @@
   {ok, pid(), State :: term()} |
   {error, Reason :: term()}).
 start(_StartType, _StartArgs) ->
-  ok.
-
-start() ->
+  inets:start(),
   [IpStr, PortStr, IdStr] = init:get_plain_arguments(),
   Port = list_to_integer(PortStr),
   Id = list_to_integer(IdStr),
@@ -63,6 +68,14 @@ start() ->
 -spec(stop(State :: term()) -> term()).
 stop(_State) ->
   ok.
+
+%% @spec stop() -> ok
+%% @doc 关闭当前节点
+stop() ->
+  ?INFO("Shutdown node: ~w", [node()]),
+  sys_listener:stop(), %% 停止接受新的连接
+  boot_misc:stop_applications(?APPS),
+  erlang:halt().
 
 %%%===================================================================
 %%% Internal functions
