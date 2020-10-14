@@ -2,7 +2,7 @@
 %%% @author sy
 %%% @copyright (C) 2019, <COMPANY>
 %%% @doc
-%%%
+%%% 节点监控树
 %%% @end
 %%% Created : 29. 9月 2019 14:56
 %%%-------------------------------------------------------------------
@@ -69,8 +69,8 @@ get_core([Ip, Port, Id]) ->
   ].
 
 %% 链接器模块
-get_acceptor([_Host, _Port, _Id]) ->
+get_acceptor([_Host, Port, _Id]) ->
   [
     {sup_acceptor, {sup_acceptor, start_link, []}, permanent, 10000, supervisor, [sup_acceptor]}
-%%    ,{sys_listener, {sys_listener, start_link, [Port]}}
+    ,{sys_listener, {sys_listener, start_link, [Port]}}
   ].
