@@ -145,15 +145,4 @@ do_handle_event(_Event, _Msg, _StateName, _State) ->
 %% 必须spawn一个进程处理，防止出错导致定时器停止
 do_handle() ->
   ?ERROR_MSG("timer_logic_daily refresh begin ..."),
-  % 玩家日常键值数据重置逻辑
-  spawn(fun() -> ?TRY_CATCH(lib_daily_api:daily_clear()) end),
-  % 全局数据重置逻辑
-  spawn(fun() -> ?TRY_CATCH(svr_global_data:daily_clear()) end),
-  % 玩家日常数据重置逻辑
-  spawn(fun() -> ?TRY_CATCH(lib_role:daily_reset_all()) end),
-  % 玩家日常任务重置逻辑
-  spawn(fun() -> ?TRY_CATCH(lib_task_api:daily_reset_all()) end),
-  % 发送特惠商城传闻
-  spawn(fun() -> ?TRY_CATCH(lib_shop:send_rumor()) end),
-  ?ERROR_MSG("timer_logic_daily refresh done.", []),
   ok.
