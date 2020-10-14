@@ -60,9 +60,7 @@ start_sup_child(M, F, A) ->
   case erlang:apply(M, F, A) of
     {ok, Pid} when is_pid(Pid) ->
       {ok, Pid};
-    Err ->
-      io:format("start sup child error Err:~w, M:~w~n", [Err, M]),
-      Err
+    Err -> Err
   end.
 
 %% 处理监控树列表
