@@ -139,9 +139,6 @@ init_mysql() ->
     % 游戏数据库
     [DbHost, DbPort, DbUser, DbPass, DbName, DbEncode] = config:get_mysql(),
     ?DB:start(?POOL_GAME, DbHost, DbPort, DbUser, DbPass, DbName, DbEncode, 40),
-    % 日志数据库
-    [LDbHost, LDbPort, LDbUser, LDbPass, LDbName, LDbEncode] = config:get_log_mysql(),
-    ?DB:start(?POOL_LOG, LDbHost, LDbPort, LDbUser, LDbPass, LDbName, LDbEncode, 40),
     ok.
 
 %% ETS表初始化
