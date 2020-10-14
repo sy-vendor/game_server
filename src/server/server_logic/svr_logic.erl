@@ -84,8 +84,6 @@ init([]) ->
     ok = init_ets(),
     % 初始化服务器数据
     ok = init_server_state(),
-    % 启动inets
-    ok = inets:start(),
     {ok, ?MODULE}.
 
 handle_call(Request, From, State) ->
