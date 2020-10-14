@@ -32,6 +32,7 @@ start() ->
 stop() ->
   ?INFO("Shutdown node: ~w", [node()]),
   sys_listener:stop(), %% 停止接受新的连接
+  ok = tpl_node_logic:stop(),
   boot_misc:stop_applications(?APPS),
   erlang:halt().
 
@@ -75,7 +76,6 @@ start(_StartType, _StartArgs) ->
 %%--------------------------------------------------------------------
 -spec(stop(State :: term()) -> term()).
 stop(_State) ->
-  ok = tpl_node_logic:stop(),
   ok.
 
 %%%===================================================================

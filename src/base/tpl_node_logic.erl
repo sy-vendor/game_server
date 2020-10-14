@@ -23,6 +23,7 @@
 start() ->
     ?ERROR_MSG("server startup, node ~w ...", [node()]),
     %% ========= 公共系统 =========
+    ok = start_global_data(),                             %% 全局数据
     ok = start_timer_logic(),                             %% 全局定时器
     ok = start_log(),                                     %% 日志系统
     ok = start_make_log(),                                %% 日志文件
@@ -49,6 +50,14 @@ init_public_handle() ->
 %% 关服通用处理
 shutdown_public_handle() ->
     ?TRY_CATCH(svr_logic:save()),
+    ?TRY_CATCH(svr_make_log:stop()),
+    ok.
+
+%% 开启全局键值对
+start_global_data() ->
+    {ok, _} = supervisor:start_child(sup,
+        {svr_global_data, {svr_global_data, start_link, []},
+            permanent, 10000, worker, [svr_global_data]}),
     ok.
 
 %% 日志

@@ -145,4 +145,7 @@ do_handle_event(_Event, _Msg, _StateName, _State) ->
 %% 必须spawn一个进程处理，防止出错导致定时器停止
 do_handle() ->
   ?ERROR_MSG("timer_logic_daily refresh begin ..."),
+  % 全局数据重置逻辑
+  spawn(fun() -> ?TRY_CATCH(svr_global_data:daily_clear()) end),
+  ?ERROR_MSG("timer_logic_daily refresh done.", []),
   ok.
