@@ -27,6 +27,14 @@
 start() ->
   boot_misc:start_applications(?APPS).
 
+%% @spec stop() -> ok
+%% @doc 关闭当前节点
+stop() ->
+  ?INFO("Shutdown node: ~w", [node()]),
+  sys_listener:stop(), %% 停止接受新的连接
+  boot_misc:stop_applications(?APPS),
+  erlang:halt().
+
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -69,14 +77,6 @@ start(_StartType, _StartArgs) ->
 stop(_State) ->
   ok = tpl_node_logic:stop(),
   ok.
-
-%% @spec stop() -> ok
-%% @doc 关闭当前节点
-stop() ->
-  ?INFO("Shutdown node: ~w", [node()]),
-  sys_listener:stop(), %% 停止接受新的连接
-  boot_misc:stop_applications(?APPS),
-  erlang:halt().
 
 %%%===================================================================
 %%% Internal functions

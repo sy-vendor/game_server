@@ -17,7 +17,7 @@
     {modules, [game]},
 
     %% 注意这个配置节是指定当前应用程序依赖哪些应用程序，类似Windows服务的依赖关系
-    {applications, [kernel, stdlib, sasl]},
+    {applications, [kernel, stdlib]},
 
     %% 启动application的时候回调模块文件名称和Module:start/2函数的参数
     {mod, {game, []}},
