@@ -27,6 +27,7 @@ start() ->
     ok = start_timer_logic(),                             %% 全局定时器
     ok = start_log(),                                     %% 日志系统
     ok = start_make_log(),                                %% 日志文件
+    ok = start_filter(),                                  %% 过滤系统
     %% ========= 分界线 =========
     ok = init_public_handle(),                            %% 通用公共调用处理(放在活动管理进程后)
     ok.
@@ -79,6 +80,13 @@ start_timer_logic() ->
     {ok, _} = supervisor:start_child(sup,
         {sup_logic_timer, {sup_logic_timer, start_link, []},
             permanent, infinity, supervisor, [sup_logic_timer]}),
+    ok.
+
+%% 过滤系统
+start_filter() ->
+    {ok, _} = supervisor:start_child(sup,
+        {svr_filter, {svr_filter, start_link, []},
+            permanent, 10000, worker, [svr_filter]}),
     ok.
 
 
