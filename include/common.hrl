@@ -75,4 +75,34 @@
 -define(PRINT(Text), io:format(Text)).
 -define(PRINT(Format, Args), io:format(Format, Args)).
 
+%% =============================================================================
+%% TRY_CATCH简化版
+%% =============================================================================
+
+%% 单个参数版本用法：
+%% ?TRY_CATCH(lib_scene_api:leave_scene(State)),
+%% ?TRY_CATCH(goods_util:goods_offline(State))
+-define(TRY_CATCH(Expression),
+    fun() ->
+        try
+            Expression
+        catch
+            _:ErrReason ->
+                ?ERROR_MSG("Catch exception: Reason:~w, Stacktrace:~w", [ErrReason, erlang:get_stacktrace()])
+        end
+    end()).
+
+%% 2个参数的版本支持自定义的信息：
+%% Tip = lists:concat(["退出游戏时离开场景,场景Id=",State#role_state.scene]),
+%% ?TRY_CATCH(lib_scene_api:leave_scene(State), Tip)
+-define(TRY_CATCH(Expression, Tip),
+    fun() ->
+        try
+            Expression
+        catch
+            _:ErrReason ->
+                ?ERROR_MSG("~s, Catch exception: Reason:~w, Stacktrace:~w", [Tip, ErrReason, erlang:get_stacktrace()])
+        end
+    end()).
+
 -endif.  %% __COMMON_H__

@@ -23,6 +23,7 @@
 start() ->
     ?ERROR_MSG("server startup, node ~w ...", [node()]),
     %% ========= 公共系统 =========
+    ok = start_timer_logic(),                             %% 全局定时器
     ok = start_log(),                                     %% 日志系统
     ok = start_make_log(),                                %% 日志文件
     %% ========= 分界线 =========
@@ -47,6 +48,7 @@ init_public_handle() ->
 
 %% 关服通用处理
 shutdown_public_handle() ->
+    ?TRY_CATCH(svr_logic:save()),
     ok.
 
 %% 日志
@@ -61,6 +63,13 @@ start_make_log() ->
     {ok, _} = supervisor:start_child(sup,
         {svr_make_log, {svr_make_log, start_link, []},
             permanent, 10000, worker, [svr_make_log]}),
+    ok.
+
+%% 开启定时器监控树
+start_timer_logic() ->
+    {ok, _} = supervisor:start_child(sup,
+        {sup_logic_timer, {sup_logic_timer, start_link, []},
+            permanent, infinity, supervisor, [sup_logic_timer]}),
     ok.
 
 
