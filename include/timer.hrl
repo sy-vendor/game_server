@@ -33,7 +33,6 @@
 % {启动触发, 模块, 函数, 参数列表, DayList, WeekList, StartTime, EndTime, Gap}
 % StartTime = EndTime :: {Hour, Minute, Second}
 -define(TIMER_LOGIC_LIST, [
-	{1, lib_charge_api, refresh_order, [], [], [], {0, 0, 0}, {0, 0, 0}, 10}
 ]).
 
 %% 跨服通信节点定时器
