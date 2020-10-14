@@ -63,8 +63,8 @@ start_link(Port) ->
 %% @doc 关闭连接监听服务
 stop() ->
   ?INFO("[~w] Closing...", [?MODULE]),
-  supervisor:terminate_child(game, sup_acceptor),
-  supervisor:terminate_child(game, sys_listener),
+  supervisor:terminate_child(sup, sup_acceptor),
+  supervisor:terminate_child(sup, sys_listener),
   ?INFO("[~w] it has been closed...", [?MODULE]),
   ok.
 

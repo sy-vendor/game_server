@@ -67,6 +67,7 @@ start(_StartType, _StartArgs) ->
 %%--------------------------------------------------------------------
 -spec(stop(State :: term()) -> term()).
 stop(_State) ->
+  ok = tpl_node_logic:stop(),
   ok.
 
 %% @spec stop() -> ok
