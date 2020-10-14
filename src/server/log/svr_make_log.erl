@@ -23,7 +23,6 @@
 
 -define(SERVER, ?MODULE).
 -define(LOOP_WRITE_TIME,    300000).            %% 定时写入日志文件：5min
--define(MAKE_LOG_LIST, []).
 
 -record(svr_make_log_state, {loop_time = 0, log_list = []}).
 
