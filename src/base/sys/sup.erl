@@ -54,7 +54,6 @@ init(Args) ->
 
   CoreL = get_core(Args),
   AcceptorL = get_acceptor(Args),
-  io:format("This is init sup node logic.....~n"),
   {ok, {SupFlags, boot_misc:swap_sup_child(CoreL ++ AcceptorL)}}.
 
 %%%===================================================================
