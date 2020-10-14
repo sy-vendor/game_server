@@ -33,7 +33,7 @@
       {db_host, "127.0.0.1"},
       {db_port, 3306},
       {db_user, "root"},
-      {db_pass, 123456},
+      {db_pass, "123456"},
       {db_name, "sy_game_db"},
       {db_encode, utf_8}
     ]
