@@ -40,7 +40,6 @@ stop_applications(Apps) ->
   ).
 
 manage_applications(Iterate, Do, Undo, SkipError, ErrorTag, Apps) ->
-  io:format("Apps:~w", [Apps]),
   F = fun(App, Acc) ->
     case Do(App) of
       ok -> [App | Acc];
@@ -58,7 +57,6 @@ manage_applications(Iterate, Do, Undo, SkipError, ErrorTag, Apps) ->
 %% Pid = pid()
 %% 启动supervisor的子进程
 start_sup_child(M, F, A) ->
-  io:format("start sup child M:~w, F:~w, A:~w~n", [M, F, A]),
   case erlang:apply(M, F, A) of
     {ok, Pid} when is_pid(Pid) ->
       {ok, Pid};
@@ -70,7 +68,6 @@ start_sup_child(M, F, A) ->
 %% 处理监控树列表
 swap_sup_child(L) ->
   lists:map(fun({Id, {M, F, A}, StartType, StartCount, Type, Mod}) ->
-    io:format("Id:~w, M:~w, F:~w, A:~w~n", [Id, M, F, A]),
     {Id, {boot_misc, start_sup_child, [M, F, A]}, StartType, StartCount, Type, Mod};
     ({Id, {M, F, A}}) ->  {Id, {boot_misc, start_sup_child, [M, F, A]}, transient, 100000, worker, [Id]}
             end, L).
