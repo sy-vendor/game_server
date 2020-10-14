@@ -49,7 +49,7 @@ start(_StartType, _StartArgs) ->
   Port = list_to_integer(PortStr),
   Id = list_to_integer(IdStr),
   case Id of
-    10 ->
+    ?NODE_ID_GAME ->
       {ok, Pid} = sup:start_link([IpStr, Port, Id]),
       ok = tpl_node_logic:start(),
       {ok, Pid};
