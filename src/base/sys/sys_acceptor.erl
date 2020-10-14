@@ -126,8 +126,25 @@ accept(Socket) ->
       gen_tcp:close(Socket)
   end.
 
+%% @doc 一个简单的模拟：收到特定消息去创建新进程,此处可预防服务器攻击(可忽略)
+%% @doc 可以忽略直接创建连接去实现接收进程操作
+create(<<"game">>, Socket) -> create_conn(game, 4, Socket);
 create(Else, Socket) ->
   Peers = inet:peernames(Socket),
   Sock = inet:socknames(Socket),
   ?INFO("shake hands fail:~w,~w, ~w", [Peers, Sock, Else]),
   gen_tcp:close(Socket).
+
+%% @doc 创建连接进程
+create_conn(_ClientType, _Packet, Socket) ->
+  try
+    {ok, {Ip, Port}} = inet:peername(Socket),
+    %% 协议处理进程
+    {ok, Pid} = sys_conn:create(Socket, Ip, Port),
+    ok = gen_tcp:controlling_process(Socket, Pid),
+    ?DEBUG("Successfully established a new connection(Type:~p)", [_ClientType])
+  catch
+    T:X ->
+      ?ERR("Failed to establish connection[~w : ~w](~w)", [T, X, erlang:get_stacktrace()]),
+      gen_tcp:close(Socket)
+  end.
