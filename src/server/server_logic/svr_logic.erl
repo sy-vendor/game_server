@@ -10,6 +10,7 @@
 -module(svr_logic).
 -behaviour(gen_server).
 -include("common.hrl").
+-include("filter.hrl").
 
 -export([
     i/0,
@@ -147,6 +148,9 @@ init_ets() ->
     ets:new(?ETS_NODE, [{keypos, #node.id}, named_table, public, set, {read_concurrency, true}]),
     % 服务器信息
     ets:new(?ETS_SERVER_STATE, [{keypos, #server_state.name}, named_table, public, set]),
+    % 屏蔽字缓存
+    ets:new(?ETS_SENSITIVE_CONTENT, [named_table, public, set, {read_concurrency, true}]),
+    ets:new(?ETS_SENSITIVE_WORD_GROUP, [named_table, public, set, {read_concurrency, true}]),
     ok.
 
 %% 初始化服务器状态
