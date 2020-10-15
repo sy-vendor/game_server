@@ -155,8 +155,7 @@ word_is_sensitive_kernel(UniString, EtsName) ->
 replace_sensitive_talk(Utf8String, Lv) when is_binary(Utf8String) ->
   UniString = unicode:characters_to_list(Utf8String, unicode),
   ReplacedString = replace_sensitive_kernel(UniString, Lv, 0, [],
-    ?ETS_SENSITIVE_CONTENT, ?ETS_SENSITIVE_TALK_PASS_1,
-    ?ETS_SENSITIVE_TALK_PASS_2, ?ETS_SENSITIVE_TALK_PASS_3),
+    ?ETS_SENSITIVE_CONTENT),
   unicode:characters_to_binary(ReplacedString, utf8);
 replace_sensitive_talk(InputString, Lv) when is_list(InputString) ->
   Utf8Binary = list_to_binary(InputString),
@@ -167,8 +166,7 @@ replace_sensitive_talk(InputString, _Lv) ->
 replace_sensitive_name(Utf8String) when is_binary(Utf8String) ->
   UniString = unicode:characters_to_list(Utf8String, unicode),
   ReplacedString = replace_sensitive_kernel(UniString, 0, 1, [],
-    ?ETS_SENSITIVE_CONTENT, ?ETS_SENSITIVE_TALK_PASS_1,
-    ?ETS_SENSITIVE_TALK_PASS_2, ?ETS_SENSITIVE_TALK_PASS_3),
+    ?ETS_SENSITIVE_CONTENT),
   unicode:characters_to_binary(ReplacedString, utf8);
 replace_sensitive_name(InputString) when is_list(InputString) ->
   Utf8Binary = list_to_binary(InputString),
@@ -176,69 +174,16 @@ replace_sensitive_name(InputString) when is_list(InputString) ->
 replace_sensitive_name(InputString) ->
   InputString.
 
-replace_sensitive_kernel([], _Lv, _TalkOrName, LastReplaced, _EtsName, _EtsPass1Name, _EtsPass2Name, _EtsPass3Name) ->
+replace_sensitive_kernel([], _Lv, _TalkOrName, LastReplaced, _EtsName) ->
   LastReplaced;
-replace_sensitive_kernel(Error, _Lv, _TalkOrName, LastReplaced, _EtsName, _EtsPass1Name, _EtsPass2Name, _EtsPass3Name) when is_list(Error) =:= false ->
+replace_sensitive_kernel(Error, _Lv, _TalkOrName, LastReplaced, _EtsName) when is_list(Error) =:= false ->
   LastReplaced;
-%%@param TalkOrName 0表示聊天,聊天需要按等级放行屏蔽词; 1表示名字
-replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name) ->
-  [HeadChar | _TailString] = InputString,
-  InputStrLen = length(InputString),
-  if
-    Lv >= 50 andalso TalkOrName =:= 0 ->
-      %% 检测是否可放行
-      WordPass_List = get_key_char_wordlist(HeadChar, EtsPass3Name),
-      MatchPass = fun(WordPass, Last) ->
-        match_of_replace_sensitive_kernel(WordPass, Last, InputString, InputStrLen)
-                  end,
-      case lists:foldl(MatchPass, 0, WordPass_List) of
-        0 -> %% 不可放行直接走检测屏蔽字
-          private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name);
-        %% 可放行
-        SensWordPassLen ->
-          SubString = lists:sublist(InputString, 1, SensWordPassLen),
-          LeftString = lists:sublist(InputString, SensWordPassLen + 1, InputStrLen - SensWordPassLen),
-          NewReplaced = LastReplaced ++ SubString,
-          replace_sensitive_kernel(LeftString, Lv, TalkOrName, NewReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name)
-      end;
-    Lv >= 39 andalso Lv =< 49 andalso TalkOrName =:= 0 ->
-      %% 检测是否可放行
-      WordPass_List = get_key_char_wordlist(HeadChar, EtsPass2Name),
-      MatchPass = fun(WordPass, Last) ->
-        match_of_replace_sensitive_kernel(WordPass, Last, InputString, InputStrLen)
-                  end,
-      case lists:foldl(MatchPass, 0, WordPass_List) of
-        0 -> %% 不可放行直接走检测屏蔽字
-          private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name);
-        %% 可放行
-        SensWordPassLen ->
-          SubString = lists:sublist(InputString, 1, SensWordPassLen),
-          LeftString = lists:sublist(InputString, SensWordPassLen + 1, InputStrLen - SensWordPassLen),
-          NewReplaced = LastReplaced ++ SubString,
-          replace_sensitive_kernel(LeftString, Lv, TalkOrName, NewReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name)
-      end;
-    Lv >= 1 andalso Lv =< 38 andalso TalkOrName =:= 0 ->
-      %% 检测是否可放行
-      WordPass_List = get_key_char_wordlist(HeadChar, EtsPass1Name),
-      MatchPass = fun(WordPass, Last) ->
-        match_of_replace_sensitive_kernel(WordPass, Last, InputString, InputStrLen)
-                  end,
-      case lists:foldl(MatchPass, 0, WordPass_List) of
-        0 -> %% 不可放行直接走检测屏蔽字
-          private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name);
-        %% 可放行
-        SensWordPassLen ->
-          SubString = lists:sublist(InputString, 1, SensWordPassLen),
-          LeftString = lists:sublist(InputString, SensWordPassLen + 1, InputStrLen - SensWordPassLen),
-          NewReplaced = LastReplaced ++ SubString,
-          replace_sensitive_kernel(LeftString, Lv, TalkOrName, NewReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name)
-      end;
-    true ->
-      private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name)
-  end.
+%%@param TalkOrName 0表示聊天; 1表示名字
+replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName) ->
+  private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName).
 
 %% @doc 检测屏蔽字，并替换
-private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name) ->
+private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsName) ->
   [HeadChar | TailString] = InputString,
   WordList = get_key_char_wordlist(HeadChar, EtsName),
   InputStrLen = length(InputString),
@@ -248,11 +193,11 @@ private_replace_sensitive_kernel(InputString, Lv, TalkOrName, LastReplaced, EtsN
   case lists:foldl(Match, 0, WordList) of
     0 ->
       NewReplaced = LastReplaced ++ [HeadChar],
-      replace_sensitive_kernel(TailString, Lv, TalkOrName, NewReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name);
+      replace_sensitive_kernel(TailString, Lv, TalkOrName, NewReplaced, EtsName);
     SensWordLen ->
       LeftString = lists:sublist(InputString, SensWordLen + 1, InputStrLen - SensWordLen),
       NewReplaced = LastReplaced ++ make_sensitive_show_string(SensWordLen),
-      replace_sensitive_kernel(LeftString, Lv, TalkOrName, NewReplaced, EtsName, EtsPass1Name, EtsPass2Name, EtsPass3Name)
+      replace_sensitive_kernel(LeftString, Lv, TalkOrName, NewReplaced, EtsName)
   end.
 
 match_of_replace_sensitive_kernel(Word, Last, InputString, InputStrLen) ->

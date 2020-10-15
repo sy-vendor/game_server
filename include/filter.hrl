@@ -10,9 +10,6 @@
 -define(__FILTER_HRL__, 0).
 
 -define(ETS_SENSITIVE_CONTENT, ets_game_sensitive_content).
--define(ETS_SENSITIVE_TALK_PASS_1, ets_game_sensitive_talk_pass_1).
--define(ETS_SENSITIVE_TALK_PASS_2, ets_game_sensitive_talk_pass_2).
--define(ETS_SENSITIVE_TALK_PASS_3, ets_game_sensitive_talk_pass_3).
 -define(ETS_SENSITIVE_WORD_GROUP, ets_game_sensitive_word_group).
 
 -define(FMT_FILTER(X), io_lib:format("~ts", [X])).
