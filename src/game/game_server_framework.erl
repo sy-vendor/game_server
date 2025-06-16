@@ -116,6 +116,13 @@ terminate(_Reason, _State) ->
     lager:info("Game framework terminating"),
     ok.
 
+%% @doc
+%% 热升级时，Erlang会调用此回调以实现状态结构的平滑迁移。
+%% 你可以在这里处理record字段变更、数据结构升级等。
+%% 例：
+%%   code_change(_OldVsn, State = #state{games=Games}, _Extra) ->
+%%       %% 升级games结构
+%%       {ok, State}.
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 

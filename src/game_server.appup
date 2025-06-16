@@ -1,0 +1,10 @@
+{
+  "0.2.0", [
+    {update, game_server_framework, supervisor},
+    {update, game_server_worker, supervisor}
+  ],
+  [
+    {update, game_server_framework, supervisor},
+    {update, game_server_worker, supervisor}
+  ]
+}. 

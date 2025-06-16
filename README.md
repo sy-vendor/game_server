@@ -87,3 +87,46 @@ A lightweight and high-performance game server framework built with Erlang.
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Hot Code Upgrade (热更新与升级)
+
+Erlang/OTP 原生支持代码热加载和应用级热升级。
+
+### 1. 热加载模块（开发/调试阶段）
+- 在 Erlang shell 或远程节点中：
+  ```erlang
+  l(game_server_framework).
+  l(my_custom_game).
+  %% 或
+  code:load_file(game_server_framework).
+  ```
+- 进程会自动切换到新代码，状态通过 `code_change/3` 回调平滑迁移。
+
+### 2. 平滑升级状态
+- 在 `code_change/3` 回调中处理 record/数据结构变更：
+  ```erlang
+  code_change(_OldVsn, State, _Extra) ->
+      %% 这里可以做状态结构的转换
+      {ok, State}.
+  ```
+
+### 3. Release 级热升级
+- 使用 `rebar3 release` 生成 release 包。
+- 编写 `src/game_server.appup` 文件，描述升级/降级步骤。
+- 使用 `bin/game_server upgrade <version>` 实现平滑升级。
+
+#### appup 文件示例：
+```erlang
+{
+  "0.2.0", [
+    {update, game_server_framework, supervisor},
+    {update, game_server_worker, supervisor}
+  ],
+  [
+    {update, game_server_framework, supervisor},
+    {update, game_server_worker, supervisor}
+  ]
+}.
+```
+
+更多 Erlang 热升级资料请参考官方文档或社区教程。
