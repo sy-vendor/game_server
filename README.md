@@ -1,132 +1,274 @@
-# Erlang Game Server Framework
+# Game Server Framework
 
-A lightweight and high-performance game server framework built with Erlang.
+一个基于 Erlang/OTP 构建的灵活、可扩展的游戏服务器框架。
 
-## Features
+## 特性
 
-- High concurrency support leveraging Erlang's actor model
-- Modular architecture for easy extension
-- Built-in tools and utilities for game server development
-- Configurable server components
-- Real-time communication capabilities
+- 完整的项目结构和依赖管理
+- 日志系统 (Lager)
+- 配置管理
+- 通用游戏房间/框架
+- HTTP/REST 和 WebSocket 接口
+- 安全认证系统
+- 热代码升级
+- 单元测试
 
-## Project Structure
+## 系统架构
 
 ```
-.
-├── src/           # Source code
-│   ├── server/    # Server core logic (HTTP/WebSocket)
-│   ├── game/      # Game framework and behaviours
-│   ├── base/      # Base functionality
-│   ├── util/      # Utility functions
-│   ├── tools/     # Development tools
-│   ├── config/    # Configuration handling
-│   └── lib/       # Library files
-├── include/       # Header files
-├── script/        # Scripts
-├── config/        # Configuration files
-└── rebar.config   # Build and dependency config
++------------------+     +------------------+     +------------------+
+|                  |     |                  |     |                  |
+|  HTTP/WebSocket  | --> |  Auth Middleware | --> |  Game Framework  |
+|    Interface     |     |                  |     |                  |
++------------------+     +------------------+     +------------------+
+                                                         |
+                                                         v
++------------------+     +------------------+     +------------------+
+|                  |     |                  |     |                  |
+|  Room Manager    | <-- |  Game Instance   | <-- |  Game Behaviour  |
+|                  |     |                  |     |                  |
++------------------+     +------------------+     +------------------+
 ```
 
-## Requirements
+## 快速开始
 
-- Erlang/OTP 24.0 or later
-- rebar3 (for build management)
+### 环境要求
 
-## Quick Start
+- Erlang/OTP 24+
+- rebar3
 
-1. Clone the repository
-2. Build the project:
-   ```bash
-   rebar3 compile
-   ```
-3. Start the server:
-   ```bash
-   rebar3 shell
-   ```
+### 安装
 
-## HTTP API
-
-### Health Check
-- **GET** `/health`
-- **Response:** `{ "status": "ok" }`
-
-### Game API (Demo)
-- **POST** `/api/game`
-- **Body:** JSON `{ "action": "start" }`
-- **Response:** `{ "status": "success" }` or error JSON
-
-## WebSocket API
-
-- **Endpoint:** `/ws`
-- **Protocol:** JSON text frames
-
-### 支持的消息类型
-
-#### 1. 加入游戏
-```json
-{ "type": "join", "game_id": "game1" }
+```bash
+git clone https://github.com/your-username/game_server.git
+cd game_server
+rebar3 compile
 ```
-- **响应：** `{ "status": "joined" }`
 
-#### 2. 游戏动作
-```json
-{ "type": "action", "action": "move" }
+### 运行
+
+```bash
+rebar3 shell
 ```
-- **响应：** `{ "status": "action_received" }`
 
-#### 3. 错误消息
-- **格式：** `{ "error": "invalid_message" }` 或 `{ "error": "unknown_message_type" }`
+## 框架组件
 
-## How to Extend
+### 1. 认证系统
 
-- 实现 `game_server_behaviour` 行为模块，定义你的游戏逻辑。
-- 通过 `game_server_framework` API 管理游戏房间和玩家。
-- 可自定义 HTTP/WebSocket 路由和协议。
+基于 Token 的认证系统，支持：
+- Token 生成和验证
+- 权限控制
+- 请求频率限制
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-## Hot Code Upgrade (热更新与升级)
-
-Erlang/OTP 原生支持代码热加载和应用级热升级。
-
-### 1. 热加载模块（开发/调试阶段）
-- 在 Erlang shell 或远程节点中：
-  ```erlang
-  l(game_server_framework).
-  l(my_custom_game).
-  %% 或
-  code:load_file(game_server_framework).
-  ```
-- 进程会自动切换到新代码，状态通过 `code_change/3` 回调平滑迁移。
-
-### 2. 平滑升级状态
-- 在 `code_change/3` 回调中处理 record/数据结构变更：
-  ```erlang
-  code_change(_OldVsn, State, _Extra) ->
-      %% 这里可以做状态结构的转换
-      {ok, State}.
-  ```
-
-### 3. Release 级热升级
-- 使用 `rebar3 release` 生成 release 包。
-- 编写 `src/game_server.appup` 文件，描述升级/降级步骤。
-- 使用 `bin/game_server upgrade <version>` 实现平滑升级。
-
-#### appup 文件示例：
 ```erlang
-{
-  "0.2.0", [
-    {update, game_server_framework, supervisor},
-    {update, game_server_worker, supervisor}
-  ],
-  [
-    {update, game_server_framework, supervisor},
-    {update, game_server_worker, supervisor}
-  ]
-}.
+% 生成 Token
+{ok, Token} = game_server_auth:generate_token(UserId)
+
+% 验证 Token
+case game_server_auth:validate_token(Token) of
+    {ok, #token{user_id = UserId}} ->
+        % Token 有效
+    {error, Reason} ->
+        % Token 无效
+end
+
+% 检查权限
+case game_server_auth:check_permission(Token, <<"game:play">>) of
+    {ok, UserId} ->
+        % 有权限
+    {error, Reason} ->
+        % 无权限
+end
 ```
 
-更多 Erlang 热升级资料请参考官方文档或社区教程。
+### 2. 房间管理
+
+房间管理系统，支持：
+- 创建游戏房间
+- 加入/离开房间
+- 房间状态管理
+- 自动清理空房间
+
+```erlang
+% 创建房间
+{ok, RoomId} = game_server_room_manager:create_room(GameType, MaxPlayers)
+
+% 加入房间
+{ok, RoomId} = game_server_room_manager:join_room(RoomId, PlayerId)
+
+% 离开房间
+ok = game_server_room_manager:leave_room(RoomId, PlayerId)
+
+% 获取房间信息
+{ok, Room} = game_server_room_manager:get_room_info(RoomId)
+```
+
+### 3. 游戏框架
+
+通用游戏框架，支持：
+- 游戏实例管理
+- 玩家管理
+- 动作处理
+- 状态管理
+
+```erlang
+% 启动游戏
+{ok, GameId} = game_server_game_framework:start_game(GameType, Module, Args)
+
+% 加入游戏
+{ok, GameId} = game_server_game_framework:join_game(GameId, PlayerId)
+
+% 处理游戏动作
+ok = game_server_game_framework:handle_action(GameId, PlayerId, Action)
+
+% 获取游戏状态
+{ok, State} = game_server_game_framework:get_game_state(GameId)
+```
+
+### 4. 游戏行为
+
+定义游戏实现必须遵循的接口：
+
+```erlang
+-module(my_game).
+-behaviour(game_server_game_behaviour).
+
+-export([
+    init/1,
+    handle_join/2,
+    handle_leave/2,
+    handle_action/3,
+    get_state/1,
+    get_players/1,
+    is_game_over/1,
+    get_winner/1
+]).
+
+% 实现必要的回调函数
+...
+```
+
+## API 文档
+
+### HTTP API
+
+#### 认证
+
+```http
+POST /api/auth/token
+Content-Type: application/json
+
+{
+    "user_id": "user123"
+}
+```
+
+响应：
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### 游戏管理
+
+```http
+POST /api/games
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "game_type": "poker",
+    "max_players": 6
+}
+```
+
+### WebSocket API
+
+#### 连接
+
+```javascript
+const ws = new WebSocket('ws://server:8081/ws?token=<token>');
+```
+
+#### 消息
+
+1. 加入房间
+```json
+{
+    "type": "join_room",
+    "room_id": "room123"
+}
+```
+
+2. 游戏动作
+```json
+{
+    "type": "game_action",
+    "action": {
+        "type": "play_card",
+        "card": "A♠"
+    }
+}
+```
+
+## 配置
+
+服务器可以通过环境变量或 `sys.config` 文件进行配置：
+
+```erlang
+[
+    {game_server, [
+        {http_port, 8080},
+        {ws_port, 8081},
+        {log_level, info}
+    ]}
+].
+```
+
+## 开发指南
+
+### 添加新游戏类型
+
+1. 创建新的游戏模块，实现 `game_server_game_behaviour`
+2. 实现必要的回调函数
+3. 注册游戏类型
+4. 使用游戏框架 API 管理游戏实例
+
+### 热代码升级
+
+1. 准备新版本代码
+2. 生成 appup 文件
+3. 创建新版本发布
+4. 执行热升级
+
+```erlang
+% 加载新模块
+c:l(Module).
+
+% 执行热升级
+release_handler:create_RELEASE(Release, ReleaseDir).
+release_handler:install_release(Release).
+```
+
+## 测试
+
+```bash
+# 运行单元测试
+rebar3 eunit
+
+# 运行集成测试
+rebar3 ct
+```
+
+## 贡献
+
+1. Fork 项目
+2. 创建特性分支
+3. 提交更改
+4. 推送到分支
+5. 创建 Pull Request
+
+## 许可证
+
+MIT
