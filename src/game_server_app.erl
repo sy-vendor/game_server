@@ -4,13 +4,8 @@
 -export([start/2, stop/1]).
 
 start(_StartType, _StartArgs) ->
-    %% Start lager first
-    application:start(lager),
+    lager:start(),
     
-    %% Log application start
-    lager:info("Starting game server application"),
-    
-    %% Start cowboy
     {ok, _} = application:ensure_all_started(cowboy),
     
     Dispatch = cowboy_router:compile([
@@ -31,19 +26,14 @@ start(_StartType, _StartArgs) ->
         #{env => #{dispatch => Dispatch}}
     ),
     
-    lager:info("Cowboy server started on port ~p", [application:get_env(game_server, http_port, 8080)]),
-    
     case game_server_sup:start_link() of
         {ok, Pid} ->
-            lager:info("Game server supervisor started successfully"),
             {ok, Pid};
         Error ->
-            lager:error("Failed to start game server supervisor: ~p", [Error]),
             Error
     end.
 
 stop(_State) ->
-    lager:info("Stopping game server application"),
     cowboy:stop_listener(http_listener),
     cowboy:stop_listener(ws_listener),
-    ok. 
+    ok.

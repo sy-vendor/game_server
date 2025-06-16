@@ -6,7 +6,8 @@
    [
     game_server_sup,
     game_server_auth,
-    game_server_framework
+    game_server_framework,
+    game_server_room_manager
    ]},
   {mod, {game_server_app, []}},
   {applications,

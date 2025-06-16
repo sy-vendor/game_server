@@ -8,27 +8,14 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    SupFlags = #{strategy => one_for_one,
-                 intensity => 1,
-                 period => 5},
-    
-    ChildSpecs = [
-        #{
-            id => game_server_worker,
-            start => {game_server_worker, start_link, []},
-            restart => permanent,
-            shutdown => 5000,
-            type => worker,
-            modules => [game_server_worker]
-        },
-        #{
-            id => game_server_framework,
-            start => {game_server_framework, start_link, []},
-            restart => permanent,
-            shutdown => 5000,
-            type => worker,
-            modules => [game_server_framework]
-        }
-    ],
-    
-    {ok, {SupFlags, ChildSpecs}}. 
+    {ok, {{one_for_one, 5, 10}, [
+        {game_server_auth,
+         {game_server_auth, start_link, []},
+         permanent, 5000, worker, [game_server_auth]},
+        {game_server_room_manager,
+         {game_server_room_manager, start_link, []},
+         permanent, 5000, worker, [game_server_room_manager]},
+        {game_server_framework,
+         {game_server_framework, start_link, []},
+         permanent, 5000, worker, [game_server_framework]}
+    ]}}. 
