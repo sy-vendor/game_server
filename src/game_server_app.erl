@@ -10,6 +10,17 @@ start(_StartType, _StartArgs) ->
     %% Log application start
     lager:info("Starting game server application"),
     
+    %% Start cowboy
+    {ok, _} = cowboy:start_clear(http, [
+        {port, game_server_config:get(port, 8080)}
+    ], #{
+        env => #{dispatch => cowboy_router:compile([
+            {'_', game_server_router:routes()}
+        ])}
+    }),
+    
+    lager:info("Cowboy server started on port ~p", [game_server_config:get(port, 8080)]),
+    
     case game_server_sup:start_link() of
         {ok, Pid} ->
             lager:info("Game server supervisor started successfully"),
@@ -21,4 +32,5 @@ start(_StartType, _StartArgs) ->
 
 stop(_State) ->
     lager:info("Stopping game server application"),
+    cowboy:stop_listener(http),
     ok. 
