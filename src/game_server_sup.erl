@@ -15,6 +15,9 @@ init([]) ->
         {game_server_room_manager,
          {game_server_room_manager, start_link, []},
          permanent, 5000, worker, [game_server_room_manager]},
+        {game_server_game_framework,
+         {game_server_game_framework, start_link, []},
+         permanent, 5000, worker, [game_server_game_framework]},
         {game_server_framework,
          {game_server_framework, start_link, []},
          permanent, 5000, worker, [game_server_framework]}
