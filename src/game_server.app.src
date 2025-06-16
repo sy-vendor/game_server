@@ -1,0 +1,15 @@
+{application, game_server,
+ [
+  {description, "A lightweight and high-performance game server framework"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {game_server_app, []}},
+  {applications,
+   [
+    kernel,
+    stdlib,
+    sasl
+   ]},
+  {env, []},
+  {modules, []}
+ ]}. 
