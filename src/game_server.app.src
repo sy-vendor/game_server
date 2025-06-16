@@ -1,15 +1,27 @@
 {application, game_server,
  [
-  {description, "A lightweight and high-performance game server framework"},
+  {description, "A flexible game server framework"},
   {vsn, "0.1.0"},
-  {registered, []},
+  {registered,
+   [
+    game_server_sup,
+    game_server_auth,
+    game_server_framework
+   ]},
   {mod, {game_server_app, []}},
   {applications,
    [
     kernel,
     stdlib,
-    sasl
+    cowboy,
+    lager,
+    jsx
    ]},
-  {env, []},
+  {env,
+   [
+    {http_port, 8080},
+    {ws_port, 8081},
+    {log_level, info}
+   ]},
   {modules, []}
  ]}. 
