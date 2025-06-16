@@ -268,7 +268,3 @@ rebar3 ct
 3. 提交更改
 4. 推送到分支
 5. 创建 Pull Request
-
-## 许可证
-
-MIT
